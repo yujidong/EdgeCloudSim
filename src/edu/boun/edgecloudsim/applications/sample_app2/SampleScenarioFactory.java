@@ -10,6 +10,7 @@
 
 package edu.boun.edgecloudsim.applications.sample_app2;
 
+import edu.boun.edgecloudsim.applications.sample_app5.ManhattanGridMobility;
 import edu.boun.edgecloudsim.cloud_server.CloudServerManager;
 import edu.boun.edgecloudsim.cloud_server.DefaultCloudServerManager;
 import edu.boun.edgecloudsim.core.ScenarioFactory;
@@ -53,7 +54,7 @@ public class SampleScenarioFactory implements ScenarioFactory {
 
 	@Override
 	public MobilityModel getMobilityModel() {
-		return new NomadicMobility(numOfMobileDevice,simulationTime);
+		return new ManhattanGridMobility(numOfMobileDevice,simulationTime);
 	}
 
 	@Override

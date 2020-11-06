@@ -31,7 +31,7 @@ import edu.boun.edgecloudsim.utils.SimLogger.NETWORK_ERRORS;
 
 public class SimLogger {
 	public static enum TASK_STATUS {
-		CREATED, UPLOADING, PROCESSING, DOWNLOADING, COMLETED, REJECTED_DUE_TO_VM_CAPACITY, REJECTED_DUE_TO_BANDWIDTH, UNFINISHED_DUE_TO_BANDWIDTH, UNFINISHED_DUE_TO_MOBILITY
+		CREATED, UPLOADING, PROCESSING, DOWNLOADING, COMLETED, REJECTED_DUE_TO_VM_CAPACITY, REJECTED_DUE_TO_BANDWIDTH, UNFINISHED_DUE_TO_BANDWIDTH, UNFINISHED_DUE_TO_MOBILITY, UNFINISHED_DUE_TO_MOBILITY_NETWORK_LAYER, REJECTED_DUE_TO_MOBILITY_DEVICE_LAYER,
 	}
 	
 	public static enum NETWORK_ERRORS {
@@ -144,6 +144,10 @@ public class SimLogger {
 		taskMap.get(taskId).taskFailedDueToMobility(time);
 	}
 
+	public void failedDueToMobilityNetworkLayer(int taskId, double time) {taskMap.get(taskId).taskTailedDueToMobilityNetworkLayer(time);}
+
+	public void rejectedDueToMobilityDeviceLayer(int taskId, double time) { taskMap.get(taskId).taskFailedDueToMobilityDeviceLayer(time);}
+
 	public void addVmUtilizationLog(double time, double loadOnEdge, double loadOnCloud, double loadOnMobile) {
 		vmLoadList.add(new VmLoadLogItem(time, loadOnEdge, loadOnCloud, loadOnMobile));
 	}
@@ -208,6 +212,8 @@ public class SimLogger {
 		int[] failedTaskDuetoManBw = new int[numOfAppTypes + 1];
 		int[] failedTaskDuetoWanBw = new int[numOfAppTypes + 1];
 		int[] failedTaskDuetoMobility = new int[numOfAppTypes + 1];
+		int[] failedTaskDuetoMobilityNetworkLayer = new int[numOfAppTypes + 1];
+		int[] failedTaskDuetoMobilityDeviceLayer = new int[numOfAppTypes + 1];
 
 		// open all files and prepare them for write
 		if (fileLogEnabled) {
@@ -361,6 +367,14 @@ public class SimLogger {
 				failedTaskDuetoMobility[value.getTaskType()]++;
 				if (fileLogEnabled && SimSettings.getInstance().getDeepFileLoggingEnabled())
 					appendToFile(failBW, value.toString(key));
+			} else if (value.getStatus() == SimLogger.TASK_STATUS.UNFINISHED_DUE_TO_MOBILITY_NETWORK_LAYER) {
+				failedTaskDuetoMobilityNetworkLayer[value.getTaskType()]++;
+				if (fileLogEnabled && SimSettings.getInstance().getDeepFileLoggingEnabled())
+					appendToFile(failBW, value.toString(key));
+			} else if (value.getStatus() == SimLogger.TASK_STATUS.REJECTED_DUE_TO_MOBILITY_DEVICE_LAYER) {
+				failedTaskDuetoMobilityDeviceLayer[value.getTaskType()]++;
+				if (fileLogEnabled && SimSettings.getInstance().getDeepFileLoggingEnabled())
+					appendToFile(failBW, value.toString(key));
 			}
 		}
 
@@ -410,6 +424,8 @@ public class SimLogger {
 		failedTaskDuetoManBw[numOfAppTypes] = IntStream.of(failedTaskDuetoManBw).sum();
 		failedTaskDuetoLanBw[numOfAppTypes] = IntStream.of(failedTaskDuetoLanBw).sum();
 		failedTaskDuetoMobility[numOfAppTypes] = IntStream.of(failedTaskDuetoMobility).sum();
+		failedTaskDuetoMobilityNetworkLayer[numOfAppTypes] = IntStream.of(failedTaskDuetoMobilityNetworkLayer).sum();
+		failedTaskDuetoMobilityDeviceLayer[numOfAppTypes] = IntStream.of(failedTaskDuetoMobilityDeviceLayer).sum();
 
 		// calculate server load
 		double totalVmLoadOnEdge = 0;
@@ -484,7 +500,9 @@ public class SimLogger {
 						+ Double.toString(0) + SimSettings.DELIMITER 
 						+ Double.toString(_cost) + SimSettings.DELIMITER 
 						+ Integer.toString(failedTaskDueToVmCapacity[i]) + SimSettings.DELIMITER 
-						+ Integer.toString(failedTaskDuetoMobility[i]);
+						+ Integer.toString(failedTaskDuetoMobility[i]) + SimSettings.DELIMITER
+						+ Integer.toString(failedTaskDuetoMobilityDeviceLayer[i]) + SimSettings.DELIMITER
+						+ Integer.toString(failedTaskDuetoMobilityNetworkLayer[i]);
 
 				// check if the divisor is zero in order to avoid division by zero problem
 				double _serviceTimeOnEdge = (completedTaskOnEdge[i] == 0) ? 0.0
@@ -595,8 +613,9 @@ public class SimLogger {
 				+ failedTaskDueToVmCapacityOnCloud[numOfAppTypes] + "/"
 				+ failedTaskDueToVmCapacityOnMobile[numOfAppTypes] + ")");
 		
-		printLine("# of failed tasks due to Mobility/Network(WLAN/MAN/WAN): "
-				+ failedTaskDuetoMobility[numOfAppTypes]
+		printLine("# of failed tasks due to Mobility Network/ Mobility Device /Network(WLAN/MAN/WAN): "
+				+ failedTaskDuetoMobilityNetworkLayer[numOfAppTypes]
+				+ "/" + failedTaskDuetoMobilityDeviceLayer[numOfAppTypes]
 				+ "/" + failedTaskDuetoBw[numOfAppTypes] 
 				+ "(" + failedTaskDuetoLanBw[numOfAppTypes] 
 				+ "/" + failedTaskDuetoManBw[numOfAppTypes] 
@@ -796,6 +815,16 @@ class LogItem {
 		status = SimLogger.TASK_STATUS.UNFINISHED_DUE_TO_MOBILITY;
 	}
 
+	public void taskFailedDueToMobilityDeviceLayer(double time) {
+		taskEndTime = time;
+		status = SimLogger.TASK_STATUS.REJECTED_DUE_TO_MOBILITY_DEVICE_LAYER;
+	}
+
+	public void taskTailedDueToMobilityNetworkLayer(double time) {
+		taskEndTime = time;
+		status = SimLogger.TASK_STATUS.UNFINISHED_DUE_TO_MOBILITY_NETWORK_LAYER;
+	}
+
 	public void setCost(double _bwCost, double _cpuCos) {
 		bwCost = _bwCost;
 		cpuCost = _cpuCos;
@@ -895,6 +924,10 @@ class LogItem {
 			result += "3"; // failure reason 3
 		else if (status == SimLogger.TASK_STATUS.UNFINISHED_DUE_TO_MOBILITY)
 			result += "4"; // failure reason 4
+		else if (status == SimLogger.TASK_STATUS.REJECTED_DUE_TO_MOBILITY_DEVICE_LAYER)
+			result += "5";
+		else if (status == SimLogger.TASK_STATUS.UNFINISHED_DUE_TO_MOBILITY_NETWORK_LAYER)
+			result += "6";
 		else
 			result += "0"; // default failure reason
 		return result;

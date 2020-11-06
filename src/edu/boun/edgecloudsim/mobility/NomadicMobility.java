@@ -66,8 +66,8 @@ public class NomadicMobility extends MobilityModel {
 			String attractiveness = location.getElementsByTagName("attractiveness").item(0).getTextContent();
 			int placeTypeIndex = Integer.parseInt(attractiveness);
 			int wlan_id = Integer.parseInt(location.getElementsByTagName("wlan_id").item(0).getTextContent());
-			int x_pos = Integer.parseInt(location.getElementsByTagName("x_pos").item(0).getTextContent());
-			int y_pos = Integer.parseInt(location.getElementsByTagName("y_pos").item(0).getTextContent());
+			double x_pos = Double.parseDouble(location.getElementsByTagName("x_pos").item(0).getTextContent());
+			double y_pos = Double.parseDouble(location.getElementsByTagName("y_pos").item(0).getTextContent());
 
 			//start locating user shortly after the simulation started (e.g. 10 seconds)
 			treeMapArray.get(i).put(SimSettings.CLIENT_ACTIVITY_START_TIME, new Location(placeTypeIndex, wlan_id, x_pos, y_pos));
@@ -91,8 +91,8 @@ public class NomadicMobility extends MobilityModel {
 						String attractiveness = location.getElementsByTagName("attractiveness").item(0).getTextContent();
 						int placeTypeIndex = Integer.parseInt(attractiveness);
 						int wlan_id = Integer.parseInt(location.getElementsByTagName("wlan_id").item(0).getTextContent());
-						int x_pos = Integer.parseInt(location.getElementsByTagName("x_pos").item(0).getTextContent());
-						int y_pos = Integer.parseInt(location.getElementsByTagName("y_pos").item(0).getTextContent());
+						double x_pos = Double.parseDouble(location.getElementsByTagName("x_pos").item(0).getTextContent());
+						double y_pos = Double.parseDouble(location.getElementsByTagName("y_pos").item(0).getTextContent());
 						
 						treeMap.put(treeMap.lastKey()+waitingTime, new Location(placeTypeIndex, wlan_id, x_pos, y_pos));
 					}

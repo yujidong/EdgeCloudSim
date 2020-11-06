@@ -172,8 +172,8 @@ public class DefaultEdgeServerManager extends EdgeServerManager{
 		Element location = (Element)datacenterElement.getElementsByTagName("location").item(0);
 		String attractiveness = location.getElementsByTagName("attractiveness").item(0).getTextContent();
 		int wlan_id = Integer.parseInt(location.getElementsByTagName("wlan_id").item(0).getTextContent());
-		int x_pos = Integer.parseInt(location.getElementsByTagName("x_pos").item(0).getTextContent());
-		int y_pos = Integer.parseInt(location.getElementsByTagName("y_pos").item(0).getTextContent());
+		double x_pos = Double.parseDouble(location.getElementsByTagName("x_pos").item(0).getTextContent());
+		double y_pos = Double.parseDouble(location.getElementsByTagName("y_pos").item(0).getTextContent());
 		int placeTypeIndex = Integer.parseInt(attractiveness);
 
 		NodeList hostNodeList = datacenterElement.getElementsByTagName("host");

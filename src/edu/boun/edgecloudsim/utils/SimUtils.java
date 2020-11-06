@@ -82,4 +82,13 @@ public class SimUtils {
 		
 		return result;
 	}
+
+	public static double getRandomDoubleNumber() {
+		//return pd.sample();
+		return RNG.nextDouble();
+	}
+
+	public static double getRandomGaussian() {
+    	return RNG.nextGaussian();
+	}
 }

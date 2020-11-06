@@ -118,7 +118,7 @@ public class SampleMobileDeviceManager extends MobileDeviceManager {
 				}
 				else
 				{
-					SimLogger.getInstance().failedDueToMobility(task.getCloudletId(), CloudSim.clock());
+					SimLogger.getInstance().failedDueToMobilityNetworkLayer(task.getCloudletId(), CloudSim.clock());
 				}
 			}
 			else
@@ -159,7 +159,7 @@ public class SampleMobileDeviceManager extends MobileDeviceManager {
 				}
 				else
 				{
-					SimLogger.getInstance().failedDueToMobility(task.getCloudletId(), CloudSim.clock());
+					SimLogger.getInstance().failedDueToMobilityNetworkLayer(task.getCloudletId(), CloudSim.clock());
 				}
 			}
 			else
