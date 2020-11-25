@@ -10,7 +10,6 @@
 
 package edu.boun.edgecloudsim.applications.sample_app2;
 
-import edu.boun.edgecloudsim.applications.sample_app5.ManhattanGridMobility;
 import edu.boun.edgecloudsim.cloud_server.CloudServerManager;
 import edu.boun.edgecloudsim.cloud_server.DefaultCloudServerManager;
 import edu.boun.edgecloudsim.core.ScenarioFactory;
@@ -21,7 +20,6 @@ import edu.boun.edgecloudsim.edge_client.MobileDeviceManager;
 import edu.boun.edgecloudsim.edge_client.mobile_processing_unit.DefaultMobileServerManager;
 import edu.boun.edgecloudsim.edge_client.mobile_processing_unit.MobileServerManager;
 import edu.boun.edgecloudsim.mobility.MobilityModel;
-import edu.boun.edgecloudsim.mobility.NomadicMobility;
 import edu.boun.edgecloudsim.task_generator.IdleActiveLoadGenerator;
 import edu.boun.edgecloudsim.task_generator.LoadGeneratorModel;
 import edu.boun.edgecloudsim.network.NetworkModel;
@@ -31,6 +29,7 @@ public class SampleScenarioFactory implements ScenarioFactory {
 	private double simulationTime;
 	private String orchestratorPolicy;
 	private String simScenario;
+	private MobilityModel mobilityModel;
 	
 	SampleScenarioFactory(int _numOfMobileDevice,
 			double _simulationTime,
@@ -40,6 +39,14 @@ public class SampleScenarioFactory implements ScenarioFactory {
 		numOfMobileDevice = _numOfMobileDevice;
 		simulationTime = _simulationTime;
 		simScenario = _simScenario;
+	}
+
+	SampleScenarioFactory(int _numOfMobileDevice, double _simulationTime, String _orchestratorPolicy, String _simScenario, MobilityModel mobilityModel) {
+		orchestratorPolicy = _orchestratorPolicy;
+		numOfMobileDevice = _numOfMobileDevice;
+		simulationTime = _simulationTime;
+		simScenario = _simScenario;
+		this.mobilityModel = mobilityModel;
 	}
 	
 	@Override
@@ -54,7 +61,7 @@ public class SampleScenarioFactory implements ScenarioFactory {
 
 	@Override
 	public MobilityModel getMobilityModel() {
-		return new ManhattanGridMobility(numOfMobileDevice,simulationTime);
+		return mobilityModel;
 	}
 
 	@Override

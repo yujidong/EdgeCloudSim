@@ -1,4 +1,4 @@
-package edu.boun.edgecloudsim.applications.sample_app5;
+package edu.boun.edgecloudsim.applications.sample_app6;
 
 import edu.boun.edgecloudsim.edge_client.Task;
 import edu.boun.edgecloudsim.network.NetworkModel;

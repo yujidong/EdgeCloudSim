@@ -1,4 +1,4 @@
-package edu.boun.edgecloudsim.applications.sample_app5;
+package edu.boun.edgecloudsim.applications.sample_app2;
 
 import edu.boun.edgecloudsim.core.SimSettings;
 import edu.boun.edgecloudsim.mobility.MobilityModel;
@@ -16,16 +16,15 @@ import java.util.*;
 public class ManhattanGridMobility extends MobilityModel {
     private List<TreeMap<Double, Location>> treeMapArray;
     private List<Location> fogLocations;
-    private Map<Integer, List<Integer>> fogNeighbourMap;
 
     /**
      * Number of blocks on x-axis.
      */
-    protected int xblocks = 9;
+    protected int xblocks = 7;
     /**
      * Number of blocks on y-axis.
      */
-    protected int yblocks = 9;
+    protected int yblocks = 7;
 
     /**
      * Distance interval in which to possibly update the mobile's speed [m].
@@ -42,7 +41,7 @@ public class ManhattanGridMobility extends MobilityModel {
     /**
      * Mobile's mean speed [m/s].
      */
-    protected double meanSpeed = 1.0;
+    protected double meanSpeed = 8.0;
     /**
      * Mobile's minimum speed [m/s].
      */
@@ -50,11 +49,11 @@ public class ManhattanGridMobility extends MobilityModel {
     /**
      * Standard deviation of normally distributed random speed [m/s].
      */
-    protected double speedStdDev = 0.2;
+    protected double speedStdDev = 3;
     /**
      * Probability for the mobile to pause (every updateDist m), given it does not change it's speed.
      */
-    protected double pauseProb = 0.0;
+    protected double pauseProb = 0.001;
     /**
      * Maximum pause time [s].
      */
@@ -74,8 +73,8 @@ public class ManhattanGridMobility extends MobilityModel {
      */
     protected double ydim = 50;
 
-    protected double xBoundary = xdim * xblocks; // x-boundary
-    protected double yBoundary = ydim * yblocks; // y-boundary
+    protected double xBoundary = xblocks * xdim; // x-boundary
+    protected double yBoundary = yblocks * ydim; // y-boundary
 
     public ManhattanGridMobility(int _numberOfMobileDevices, double _simulationTime) {
         super(_numberOfMobileDevices, _simulationTime);
@@ -143,8 +142,7 @@ public class ManhattanGridMobility extends MobilityModel {
             double xPos = fogLocation.getFogxPos();
             double yPos = fogLocation.getFogyPos();
             int randRoad = SimUtils.getRandomNumber(1, 4); // 1: x - xdim/2  ; 2: x + xdim/2 ; 3: y - ydim/2  ; 4: y + ydim/2
-            double roadPosition = SimUtils.getRandomDoubleNumber(-Math.sqrt(Math.pow(radius, 2) - Math.pow(xdim / 2, 2)),
-                    Math.sqrt(Math.pow(radius, 2) - Math.pow(xdim / 2, 2)));
+            double roadPosition = SimUtils.getRandomDoubleNumber(-xdim/2, xdim/2);
             switch (randRoad) {
                 case 1:
                     mobileDeviceLocation = new Location(fogLocation.getPlaceTypeIndex(), fogLocation.getServingWlanId(),
@@ -181,7 +179,7 @@ public class ManhattanGridMobility extends MobilityModel {
         for (int i = 0; i < numberOfMobileDevices; i++) {
             TreeMap<Double, Location> treeMap = treeMapArray.get(i);
 
-            Direction direction = Direction.up;
+            Direction direction;
 
             if (treeMap.lastEntry().getValue().getXPos() % xdim < 0.0001) {
                 if (SimUtils.getRandomDoubleNumber() < 0.5) {
@@ -202,7 +200,7 @@ public class ManhattanGridMobility extends MobilityModel {
                 double speed = meanSpeed;
                 double changeFogTime = 0;
                 double distance = updateDist;
-                pauseProb += 0.01;
+                // pauseProb += 0.01;
 
 
 
@@ -289,25 +287,23 @@ public class ManhattanGridMobility extends MobilityModel {
                     }
                     double tt = treeMap.lastKey()+changeFogTime;
                     changeFogTime += distance/speed;
-//                    if(SimUtils.getRandomDoubleNumber() < pauseProb) {
-//                        changeFogTime += SimUtils.getRandomDoubleNumber() * maxPause;
-//                    }
+                    if(SimUtils.getRandomDoubleNumber() < pauseProb) {
+//                        SimLogger.print("Pause: Start at " + changeFogTime);
+                        changeFogTime += SimUtils.getRandomDoubleNumber() * maxPause;
+//                        SimLogger.printLine(" end at " + changeFogTime);
+                    }
 //                    SimLogger.printLine("Node: " + i + " Time: " + tt + " xPos: " + destination.getXPos() + " yPos: " + destination.getYPos() +
 //                             " Direction: " + direction + " FogIndex: " + destination.getServingWlanId() );
                     source = destination;
                 } while (destination.withinCurrentFog());
                 destination.updateNewFog();
                 double t = treeMap.lastKey()+changeFogTime;
-//                SimLogger.printLine("Node: " + i + " Time: " + t + " xPos: " + destination.getXPos() + " yPos: " + destination.getYPos() +
+//                SimLogger.printLine("Change Node: " + i + " Time: " + t + " xPos: " + destination.getXPos() + " yPos: " + destination.getYPos() +
 //                        " Direction: " + direction + " FogIndex: " + destination.getServingWlanId() );
                 treeMap.put(treeMap.lastKey()+changeFogTime, destination);
             }
         }
 
-    }
-
-    public static void main(String[] args) {
-        System.out.println(SimUtils.getRandomDoubleNumber());
     }
 
     public boolean willMeetCross(Location source, double distance, Direction dir) {

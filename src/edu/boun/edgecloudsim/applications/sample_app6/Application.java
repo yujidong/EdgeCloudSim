@@ -1,4 +1,4 @@
-package edu.boun.edgecloudsim.applications.sample_app5;
+package edu.boun.edgecloudsim.applications.sample_app6;
 
 public class Application {
     double usage_percentage;

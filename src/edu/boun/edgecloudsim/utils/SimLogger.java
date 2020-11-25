@@ -155,9 +155,9 @@ public class SimLogger {
 	public void simStopped() throws IOException {
 		int numOfAppTypes = SimSettings.getInstance().getTaskLookUpTable().length;
 
-		File successFile = null, failFile = null, vmLoadFile = null, locationFile = null;
-		FileWriter successFW = null, failFW = null, vmLoadFW = null, locationFW = null;
-		BufferedWriter successBW = null, failBW = null, vmLoadBW = null, locationBW = null;
+		File successFile = null, failFile = null, vmLoadFile = null, locationFile = null, failedPercentageFile = null;
+		FileWriter successFW = null, failFW = null, vmLoadFW = null, locationFW = null, failedPercentageFW = null;
+		BufferedWriter successBW = null, failBW = null, vmLoadBW = null, locationBW = null, failedPercentageBW = null;
 
 		// Save generic results to file for each app type. last index is average
 		// of all app types
@@ -235,6 +235,11 @@ public class SimLogger {
 			locationFW = new FileWriter(locationFile, true);
 			locationBW = new BufferedWriter(locationFW);
 
+			failedPercentageFile = new File(outputFolder, filePrefix + "_FailedPercentage.log");
+			failedPercentageFW = new FileWriter(failedPercentageFile, true);
+			failedPercentageBW = new BufferedWriter(failedPercentageFW);
+
+
 			for (int i = 0; i < numOfAppTypes + 1; i++) {
 				String fileName = "ALL_APPS_GENERIC.log";
 
@@ -260,6 +265,7 @@ public class SimLogger {
 
 			appendToFile(vmLoadBW, "#auto generated file!");
 			appendToFile(locationBW, "#auto generated file!");
+//			appendToFile(failedPercentageBW, "auto generated file!");
 		}
 
 		// extract the result of each task and write it to the file if required
@@ -463,6 +469,8 @@ public class SimLogger {
 				locationBW.newLine();
 			}
 
+
+
 			for (int i = 0; i < numOfAppTypes + 1; i++) {
 
 				if (i < numOfAppTypes) {
@@ -503,6 +511,12 @@ public class SimLogger {
 						+ Integer.toString(failedTaskDuetoMobility[i]) + SimSettings.DELIMITER
 						+ Integer.toString(failedTaskDuetoMobilityDeviceLayer[i]) + SimSettings.DELIMITER
 						+ Integer.toString(failedTaskDuetoMobilityNetworkLayer[i]);
+
+				failedPercentageBW.write(failedTask[numOfAppTypes] + "::" + Integer.toString(completedTask[numOfAppTypes] + + failedTask[numOfAppTypes]) + "::");
+
+				failedPercentageBW.write(String.format("%.6f", ((double) failedTask[numOfAppTypes] * (double) 100)
+						/ (double) (completedTask[numOfAppTypes] + failedTask[numOfAppTypes]))
+						+ "%\n");
 
 				// check if the divisor is zero in order to avoid division by zero problem
 				double _serviceTimeOnEdge = (completedTaskOnEdge[i] == 0) ? 0.0
@@ -571,6 +585,7 @@ public class SimLogger {
 			}
 			vmLoadBW.close();
 			locationBW.close();
+			failedPercentageBW.close();
 			for (int i = 0; i < numOfAppTypes + 1; i++) {
 				if (i < numOfAppTypes) {
 					// if related app is not used in this simulation, just
